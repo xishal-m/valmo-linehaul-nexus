@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+:root {
+  /* Sidebar */
+  --sidebar-bg: #0b1b34;        /* primary navy */
+  --sidebar-bg-2: #08162b;     /* darker gradient end */
+  --sidebar-border: rgba(255,255,255,0.08);
+
+  /* Sidebar text */
+  --text-primary: #ffffff;
+  --text-muted: rgba(255,255,255,0.78);
+  --text-dim: rgba(255,255,255,0.55);
+
+  /* Active nav */
+  --active-bg: rgba(255,255,255,0.10);
+  --active-bar: #c7d2fe;       /* light slate vertical bar */
+
+  /* Main canvas */
+  --canvas: #f1f5f9;           /* light slate grey */
+  --canvas-border: rgba(15,23,42,0.12);
+
+  /* Topbar */
+  --topbar-bg: #ffffff;
+  --topbar-border: rgba(15,23,42,0.10);
+}
+
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: var(--canvas);
+}
+
