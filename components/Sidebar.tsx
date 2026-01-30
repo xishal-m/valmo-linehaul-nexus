@@ -92,7 +92,7 @@ export default function Sidebar() {
               <span className="relative z-10 flex items-center gap-3">
                 <Icon
                   size={16}
-                  color={active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.55)"}
+                  color={active ? "#ffffff" : "rgba(255,255,255,0.65)"}
                 />
                 {item.label}
               </span>

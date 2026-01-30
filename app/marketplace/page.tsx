@@ -9,7 +9,7 @@ export default function MarketplacePage() {
           className="h-[calc(100vh-64px-48px)] rounded-sm"
           style={{
             background: "var(--canvas)",
-            border: "1px solid rgba(15,23,42,0.18)",
+            border: "1px solid var(--canvas-border)",
           }}
         />
       </div>
