@@ -142,26 +142,25 @@ export default function ContractManagementPage() {
         "1. Weekly payment.\n2. Driver OTP handshake mandatory.\n3. Disputes within 7 days."
     },
     {
-      contractId: "CT-NONTRIP-77001",
+      contractId: "CT-SLAB-22222",
       contractType: "SLAB_BASED",
-      status: "INACTIVE",
-      startDate: "2025-11-01",
-      endDate: "2025-12-31",
-      vehicleType: "32ft",
-      state: "Maharashtra",
-      dailyDuration: "24_HOURS",
+      status: "PENDING",
+      startDate: "2026-01-25",
+      endDate: "2026-02-25",
+      vehicleType: "22ft",
+      numberOfVehicles: 1,
+      billingType: "REGULAR",
       rateSlabs: [
-        { slab: "0–3000 km", rate: 110000 },
-        { slab: "3000–4500 km", rate: 145000 },
-        { slab: "4500–6000 km", rate: 185000 },
+        { slab: "0–3000 km", rate: 95000 },
+        { slab: "3000–4500 km", rate: 125000 },
+        { slab: "4500–6000 km", rate: 160000 },
       ],
-      extraKmRate: 38,
-      extraHourRate: 300,
+      extraKmRate: 34,
+      extraHourRate: 250,
       deviationPolicy:
-        "• 24-hour availability required.\n• Penalties apply for non-availability.\n• Distance computed from GPS.",
+        "• Monthly km computed from GPS-verified distance.\n• Any missed day reduces payable proportionally.\n• Extra hour rate applies only if shift exceeds contracted duration.",
       termsAndConditions:
-        "1. Monthly payment.\n2. SLA breaches will be penalized.\n3. Termination requires 7-day notice.",
-      terminationReason: "Completed contract term (expired)"
+        "1. Monthly invoicing.\n2. Fuel escalation not applicable.\n3. Vehicle must be available as per daily duration.\n4. Non-compliance may lead to suspension."
     },
   ]);
 
