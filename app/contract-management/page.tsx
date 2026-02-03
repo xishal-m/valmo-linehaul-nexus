@@ -102,8 +102,7 @@ export default function ContractManagementPage() {
       deviationPolicy:
         "• Route deviation beyond 10% of planned distance will be treated as exception.\n• Extra detention beyond 2 hours requires hub manager approval.\n• Proof of delay must be captured in app within 30 mins.",
       termsAndConditions:
-        "1. Payment cycle is weekly.\n2. GPS must remain ON during trip execution.\n3. Any billing dispute must be raised within 7 days.\n4. Valmo reserves right to audit trip proofs.\n5. Contract is non-transferable.",
-      __pricingSummary: "REGULAR • 2 vehicles • ₹42,000 / trip / vehicle",
+        "1. Payment cycle is weekly.\n2. GPS must remain ON during trip execution.\n3. Any billing dispute must be raised within 7 days.\n4. Valmo reserves right to audit trip proofs.\n5. Contract is non-transferable."
     },
     {
       contractId: "CT-SLAB-88210",
@@ -124,8 +123,7 @@ export default function ContractManagementPage() {
       deviationPolicy:
         "• Monthly km computed from GPS-verified distance.\n• Any missed day reduces payable proportionally.\n• Extra hour rate applies only if shift exceeds contracted duration.",
       termsAndConditions:
-        "1. Monthly invoicing.\n2. Fuel escalation not applicable.\n3. Vehicle must be available as per daily duration.\n4. Non-compliance may lead to suspension.",
-      // __pricingSummary: "12_HOURS • Slabs up to 6000 km • Extra ₹34/km, ₹250/hr",
+        "1. Monthly invoicing.\n2. Fuel escalation not applicable.\n3. Vehicle must be available as per daily duration.\n4. Non-compliance may lead to suspension."
     },
     {
       contractId: "CT-TRIP-99300",
@@ -141,8 +139,7 @@ export default function ContractManagementPage() {
       deviationPolicy:
         "• Adhoc trips billed at agreed per-trip rate.\n• Any change in route requires central approval.\n• Extra wait beyond 1 hour billed only with proof.",
       termsAndConditions:
-        "1. Weekly payment.\n2. Driver OTP handshake mandatory.\n3. Disputes within 7 days.",
-      __pricingSummary: "ADHOC • 1 vehicle • ₹36,000 / trip / vehicle",
+        "1. Weekly payment.\n2. Driver OTP handshake mandatory.\n3. Disputes within 7 days."
     },
     {
       contractId: "CT-NONTRIP-77001",
@@ -164,8 +161,7 @@ export default function ContractManagementPage() {
         "• 24-hour availability required.\n• Penalties apply for non-availability.\n• Distance computed from GPS.",
       termsAndConditions:
         "1. Monthly payment.\n2. SLA breaches will be penalized.\n3. Termination requires 7-day notice.",
-      terminationReason: "Completed contract term (expired)",
-      __pricingSummary: "24_HOURS • Slabs up to 6000 km • Extra ₹38/km, ₹300/hr",
+      terminationReason: "Completed contract term (expired)"
     },
   ]);
 
