@@ -7,14 +7,20 @@ export function Badge({
   children: React.ReactNode;
   kind:
     | "trip"
-    | "nonTrip"
+    | "slab"
+    | "billingRegular"
+    | "billingAdhoc"
     | "statusPending"
     | "statusActive"
     | "statusInactive";
 }) {
   const map: Record<string, string> = {
     trip: "border-indigo-200 bg-indigo-50 text-indigo-800",
-    nonTrip: "border-emerald-200 bg-emerald-50 text-emerald-800",
+    slab: "border-emerald-200 bg-emerald-50 text-emerald-800",
+
+    billingRegular: "border-slate-200 bg-slate-50 text-slate-700",
+    billingAdhoc: "border-fuchsia-200 bg-fuchsia-50 text-fuchsia-800",
+
     statusPending: "border-amber-200 bg-amber-50 text-amber-800",
     statusActive: "border-sky-200 bg-sky-50 text-sky-800",
     statusInactive: "border-slate-200 bg-slate-50 text-slate-700",

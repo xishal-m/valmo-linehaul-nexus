@@ -7,7 +7,7 @@ import ContractTable from "@/components/contracts/ContractTable";
 import ContractDetailsDrawer from "@/components/contracts/ContractDetailsDrawer";
 import TerminateContractModal from "@/components/contracts/TerminateContractModal";
 
-type ContractType = "TRIP_BASED" | "NON_TRIP_BASED";
+type ContractType = "TRIP_BASED" | "SLAB_BASED";
 type Status = "PENDING" | "ACTIVE" | "INACTIVE";
 
 type TripBased = {
@@ -17,7 +17,7 @@ type TripBased = {
   ratePerTripPerVehicle: number;
 };
 
-type NonTripBased = {
+type SlabBased = {
   state: string;
   dailyDuration: "12_HOURS" | "24_HOURS";
   rateSlabs: { slab: string; rate: number }[];
@@ -29,32 +29,61 @@ type Contract = {
   contractId: string;
   contractType: ContractType;
   status: Status;
+
   startDate: string;
   endDate: string;
+
   vehicleType: string;
+  numberOfVehicles: number;
+  billingType: "REGULAR" | "ADHOC";
+
   deviationPolicy: string;
   termsAndConditions: string;
 
-  // for inactive list
+  // Trip-based
+  route?: string[];
+  ratePerTripPerVehicle?: number;
+
+  // Slab-based
+  rateSlabs?: SlabBased["rateSlabs"];
+  extraKmRate?: SlabBased["extraKmRate"];
+  extraHourRate?: SlabBased["extraHourRate"];
+
   terminationReason?: string;
-
-  // dynamic fields
-  billingType?: TripBased["billingType"];
-  route?: TripBased["route"];
-  numberOfVehicles?: TripBased["numberOfVehicles"];
-  ratePerTripPerVehicle?: TripBased["ratePerTripPerVehicle"];
-
-  state?: NonTripBased["state"];
-  dailyDuration?: NonTripBased["dailyDuration"];
-  rateSlabs?: NonTripBased["rateSlabs"];
-  extraKmRate?: NonTripBased["extraKmRate"];
-  extraHourRate?: NonTripBased["extraHourRate"];
-
-  // UI helper
-  __pricingSummary?: string;
 };
 
 type TabKey = "PENDING" | "ACTIVE" | "INACTIVE";
+
+import * as XLSX from "xlsx";
+
+function isActiveFilter(v: string) {
+  return v && v !== "ALL";
+}
+
+function downloadContractsXlsx(rows: any[], fileName: string) {
+  // Flatten a clean export shape
+  const exportRows = rows.map((c) => ({
+    Contract_ID: c.contractId,
+    Status: c.status,
+    Contract_Type: c.contractType === "TRIP_BASED" ? "Trip based" : "Slab based",
+    Billing_Type: c.billingType === "REGULAR" ? "Regular" : "Adhoc",
+    Vehicle_Size: c.vehicleType,
+    No_of_Vehicles: c.numberOfVehicles,
+    Start_Date: c.startDate,
+    End_Date: c.endDate,
+    Pricing:
+      c.contractType === "TRIP_BASED"
+        ? `₹${new Intl.NumberFormat("en-IN").format(c.ratePerTripPerVehicle)} per trip`
+        : "Slab based (see details)",
+    Termination_Reason: c.terminationReason || "",
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(exportRows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Contracts");
+  XLSX.writeFile(wb, fileName);
+}
+
 
 export default function ContractManagementPage() {
   // ✅ Mock data inline
@@ -73,18 +102,17 @@ export default function ContractManagementPage() {
       deviationPolicy:
         "• Route deviation beyond 10% of planned distance will be treated as exception.\n• Extra detention beyond 2 hours requires hub manager approval.\n• Proof of delay must be captured in app within 30 mins.",
       termsAndConditions:
-        "1. Payment cycle is weekly.\n2. GPS must remain ON during trip execution.\n3. Any billing dispute must be raised within 7 days.\n4. Valmo reserves right to audit trip proofs.\n5. Contract is non-transferable.",
-      __pricingSummary: "REGULAR • 2 vehicles • ₹42,000 / trip / vehicle",
+        "1. Payment cycle is weekly.\n2. GPS must remain ON during trip execution.\n3. Any billing dispute must be raised within 7 days.\n4. Valmo reserves right to audit trip proofs.\n5. Contract is non-transferable."
     },
     {
-      contractId: "CT-NONTRIP-88210",
-      contractType: "NON_TRIP_BASED",
+      contractId: "CT-SLAB-88210",
+      contractType: "SLAB_BASED",
       status: "PENDING",
       startDate: "2026-01-25",
       endDate: "2026-02-25",
       vehicleType: "22ft",
-      state: "Karnataka",
-      dailyDuration: "12_HOURS",
+      numberOfVehicles: 1,
+      billingType: "REGULAR",
       rateSlabs: [
         { slab: "0–3000 km", rate: 95000 },
         { slab: "3000–4500 km", rate: 125000 },
@@ -95,8 +123,7 @@ export default function ContractManagementPage() {
       deviationPolicy:
         "• Monthly km computed from GPS-verified distance.\n• Any missed day reduces payable proportionally.\n• Extra hour rate applies only if shift exceeds contracted duration.",
       termsAndConditions:
-        "1. Monthly invoicing.\n2. Fuel escalation not applicable.\n3. Vehicle must be available as per daily duration.\n4. Non-compliance may lead to suspension.",
-      __pricingSummary: "12_HOURS • Slabs up to 6000 km • Extra ₹34/km, ₹250/hr",
+        "1. Monthly invoicing.\n2. Fuel escalation not applicable.\n3. Vehicle must be available as per daily duration.\n4. Non-compliance may lead to suspension."
     },
     {
       contractId: "CT-TRIP-99300",
@@ -112,35 +139,66 @@ export default function ContractManagementPage() {
       deviationPolicy:
         "• Adhoc trips billed at agreed per-trip rate.\n• Any change in route requires central approval.\n• Extra wait beyond 1 hour billed only with proof.",
       termsAndConditions:
-        "1. Weekly payment.\n2. Driver OTP handshake mandatory.\n3. Disputes within 7 days.",
-      __pricingSummary: "ADHOC • 1 vehicle • ₹36,000 / trip / vehicle",
+        "1. Weekly payment.\n2. Driver OTP handshake mandatory.\n3. Disputes within 7 days."
     },
     {
-      contractId: "CT-NONTRIP-77001",
-      contractType: "NON_TRIP_BASED",
-      status: "INACTIVE",
-      startDate: "2025-11-01",
-      endDate: "2025-12-31",
-      vehicleType: "32ft",
-      state: "Maharashtra",
-      dailyDuration: "24_HOURS",
+      contractId: "CT-SLAB-22222",
+      contractType: "SLAB_BASED",
+      status: "PENDING",
+      startDate: "2026-01-25",
+      endDate: "2026-02-25",
+      vehicleType: "22ft",
+      numberOfVehicles: 1,
+      billingType: "REGULAR",
       rateSlabs: [
-        { slab: "0–3000 km", rate: 110000 },
-        { slab: "3000–4500 km", rate: 145000 },
-        { slab: "4500–6000 km", rate: 185000 },
+        { slab: "0–3000 km", rate: 95000 },
+        { slab: "3000–4500 km", rate: 125000 },
+        { slab: "4500–6000 km", rate: 160000 },
       ],
-      extraKmRate: 38,
-      extraHourRate: 300,
+      extraKmRate: 34,
+      extraHourRate: 250,
       deviationPolicy:
-        "• 24-hour availability required.\n• Penalties apply for non-availability.\n• Distance computed from GPS.",
+        "• Monthly km computed from GPS-verified distance.\n• Any missed day reduces payable proportionally.\n• Extra hour rate applies only if shift exceeds contracted duration.",
       termsAndConditions:
-        "1. Monthly payment.\n2. SLA breaches will be penalized.\n3. Termination requires 7-day notice.",
-      terminationReason: "Completed contract term (expired)",
-      __pricingSummary: "24_HOURS • Slabs up to 6000 km • Extra ₹38/km, ₹300/hr",
+        "1. Monthly invoicing.\n2. Fuel escalation not applicable.\n3. Vehicle must be available as per daily duration.\n4. Non-compliance may lead to suspension."
     },
   ]);
 
   const [tab, setTab] = useState<TabKey>("PENDING");
+  const [vehicleFilter, setVehicleFilter] = useState<string>("ALL");
+  const [billingFilter, setBillingFilter] = useState<"ALL" | "REGULAR" | "ADHOC">("ALL");
+  const [contractTypeFilter, setContractTypeFilter] = useState<"ALL" | "TRIP_BASED" | "SLAB_BASED">("ALL");
+  const [sortBy, setSortBy] = useState<"DURATION_DESC" | "START_DATE_ASC">("START_DATE_ASC");
+  
+  function parseDate(d: string) {
+    return new Date(d + "T00:00:00");
+  }
+  function durationDays(c: Contract) {
+    const ms = parseDate(c.endDate).getTime() - parseDate(c.startDate).getTime();
+    return Math.max(0, Math.round(ms / (1000 * 60 * 60 * 24)));
+  }
+  
+  const vehicleOptions = useMemo(() => {
+    const set = new Set(contracts.map((c) => c.vehicleType));
+    return ["ALL", ...Array.from(set)];
+  }, [contracts]);
+  
+  function applyFilters(list: Contract[]) {
+    let out = [...list];
+  
+    if (vehicleFilter !== "ALL") out = out.filter((c) => c.vehicleType === vehicleFilter);
+    if (billingFilter !== "ALL") out = out.filter((c) => c.billingType === billingFilter);
+    if (contractTypeFilter !== "ALL") out = out.filter((c) => c.contractType === contractTypeFilter);
+  
+    if (sortBy === "DURATION_DESC") {
+      out.sort((a, b) => durationDays(b) - durationDays(a));
+    } else {
+      out.sort((a, b) => parseDate(a.startDate).getTime() - parseDate(b.startDate).getTime());
+    }
+  
+    return out;
+  }
+  
 
   // Drawer / modal state
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -150,10 +208,13 @@ export default function ContractManagementPage() {
   const [terminateOpen, setTerminateOpen] = useState(false);
   const [terminateContract, setTerminateContract] = useState<Contract | null>(null);
 
-  const pending = useMemo(() => contracts.filter((c) => c.status === "PENDING"), [contracts]);
-  const active = useMemo(() => contracts.filter((c) => c.status === "ACTIVE"), [contracts]);
-  const inactive = useMemo(() => contracts.filter((c) => c.status === "INACTIVE"), [contracts]);
-
+  const pending = useMemo(() => applyFilters(contracts.filter((c) => c.status === "PENDING")), [contracts, vehicleFilter, billingFilter, contractTypeFilter, sortBy]);
+  const active = useMemo(() => applyFilters(contracts.filter((c) => c.status === "ACTIVE")), [contracts, vehicleFilter, billingFilter, contractTypeFilter, sortBy]);
+  const inactive = useMemo(() => applyFilters(contracts.filter((c) => c.status === "INACTIVE")), [contracts, vehicleFilter, billingFilter, contractTypeFilter, sortBy]);
+  
+  const currentRows = tab === "PENDING" ? pending : tab === "ACTIVE" ? active : inactive;
+  const currentCount = currentRows.length;
+  
   function openDetails(c: Contract, mode: "pending" | "readonly") {
     setSelected(c);
     setDrawerMode(mode);
@@ -224,6 +285,111 @@ export default function ContractManagementPage() {
             label={`Inactive Contracts (${inactive.length})`}
           />
         </div>
+        {/* Filters + Sort (after tabs) */}
+        <div className="rounded-lg border border-slate-200 bg-white">
+          {/* Row 1: dropdowns + download */}
+          <div className="flex flex-wrap items-center gap-3 px-4 py-3">
+            <div className="text-sm text-slate-600">Filter by :</div>
+
+            <select
+              className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-700"
+              value={vehicleFilter}
+              onChange={(e) => setVehicleFilter(e.target.value)}
+            >
+              {vehicleOptions.map((v) => (
+                <option key={v} value={v}>
+                  {v === "ALL" ? "Vehicle Size" : v}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-700"
+              value={billingFilter}
+              onChange={(e) => setBillingFilter(e.target.value as any)}
+            >
+              <option value="ALL">Billing Type</option>
+              <option value="REGULAR">Regular</option>
+              <option value="ADHOC">Adhoc</option>
+            </select>
+
+            <select
+              className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-700"
+              value={contractTypeFilter}
+              onChange={(e) => setContractTypeFilter(e.target.value as any)}
+            >
+              <option value="ALL">Contract Type</option>
+              <option value="TRIP_BASED">Trip based</option>
+              <option value="SLAB_BASED">Slab based</option>
+            </select>
+
+            <div className="ml-auto flex items-center gap-3">
+              <div className="text-sm text-slate-600">Sort by :</div>
+              <select
+                className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-700"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+              >
+                <option value="START_DATE_ASC">Start date (priority)</option>
+                <option value="DURATION_DESC">Duration (longest first)</option>
+              </select>
+
+              <button
+                className="h-10 rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                onClick={() => {
+                  const file = `Contracts_${tab}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+                  downloadContractsXlsx(currentRows, file);
+                }}
+              >
+                Download ⬇
+              </button>
+            </div>
+          </div>
+
+          {/* Row 2: result count + chips + clear all */}
+          <div className="flex flex-wrap items-center gap-2 px-4 pb-3">
+            <div className="text-sm text-slate-800 font-medium">
+              {currentCount} results found
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 ml-2">
+              {isActiveFilter(vehicleFilter) && (
+                <Chip
+                  label={vehicleFilter}
+                  onRemove={() => setVehicleFilter("ALL")}
+                />
+              )}
+              {isActiveFilter(billingFilter) && (
+                <Chip
+                  label={billingFilter === "REGULAR" ? "Regular" : "Adhoc"}
+                  onRemove={() => setBillingFilter("ALL")}
+                />
+              )}
+              {isActiveFilter(contractTypeFilter) && (
+                <Chip
+                  label={contractTypeFilter === "TRIP_BASED" ? "Trip based" : "Slab based"}
+                  onRemove={() => setContractTypeFilter("ALL")}
+                />
+              )}
+            </div>
+
+            {(isActiveFilter(vehicleFilter) ||
+              isActiveFilter(billingFilter) ||
+              isActiveFilter(contractTypeFilter)) && (
+              <button
+                className="ml-3 text-sm font-medium text-slate-800 hover:underline"
+                onClick={() => {
+                  setVehicleFilter("ALL");
+                  setBillingFilter("ALL");
+                  setContractTypeFilter("ALL");
+                }}
+              >
+                Clear All
+              </button>
+            )}
+          </div>
+        </div>
+
 
         {/* Content */}
         {tab === "PENDING" && (
@@ -310,3 +476,18 @@ function TabButton({
     </button>
   );
 }
+function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
+      {label}
+      <button
+        className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300"
+        onClick={onRemove}
+        aria-label={`Remove ${label}`}
+      >
+        ×
+      </button>
+    </span>
+  );
+}
+

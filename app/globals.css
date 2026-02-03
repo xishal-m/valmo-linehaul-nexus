@@ -26,8 +26,8 @@ body {
 }
 :root {
   /* Sidebar */
-  --sidebar-bg: #0b1b34;        /* primary navy */
-  --sidebar-bg-2: #08162b;     /* darker gradient end */
+  --sidebar-bg: #072042;        /* primary navy */
+  --sidebar-bg-2: #072042;     /* darker gradient end */
   --sidebar-border: rgba(255,255,255,0.08);
 
   /* Sidebar text */
