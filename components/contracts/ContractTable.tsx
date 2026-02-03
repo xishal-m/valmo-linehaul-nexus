@@ -30,8 +30,8 @@ export default function ContractTable({ mode, rows, onView, onTerminate }: Props
           <div className="col-span-2 text-sm font-medium text-slate-800">{c.contractId}</div>
 
           <div className="col-span-2">
-            <Badge kind={c.contractType === "TRIP_BASED" ? "trip" : "nonTrip"}>
-              {c.contractType === "TRIP_BASED" ? "Trip-based" : "Non-trip"}
+            <Badge kind={c.contractType === "TRIP_BASED" ? "trip" : "slab"}>
+              {c.contractType === "TRIP_BASED" ? "Trip-based" : "Slab-based"}
             </Badge>
           </div>
 
