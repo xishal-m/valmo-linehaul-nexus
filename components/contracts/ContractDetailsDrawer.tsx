@@ -65,8 +65,8 @@ export default function ContractDetailsDrawer({
             <div className="text-lg font-semibold text-slate-800">{contract.contractId}</div>
 
             <div className="mt-2 flex items-center gap-2">
-              <Badge kind={isTripBased ? "trip" : "nonTrip"}>
-                {isTripBased ? "Trip-based" : "Non-trip"}
+              <Badge kind={isTripBased ? "trip" : "slab"}>
+                {isTripBased ? "Trip-based" : "Slab-based"}
               </Badge>
               <Badge
                 kind={

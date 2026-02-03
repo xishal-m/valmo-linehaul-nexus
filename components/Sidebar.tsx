@@ -111,10 +111,15 @@ export default function Sidebar() {
           Log Out
         </button>
 
-        <div className="mt-4">
-          <div className="inline-flex items-center justify-center rounded bg-white/10 px-3 py-1 text-white text-[13px] font-semibold tracking-wide">
-            VALMO
-          </div>
+        <div 
+          className="mt-4 pt-4"
+          style={{ borderTop: "1px solid var(--sidebar-border)" }}
+        >
+          <img 
+            src="https://www.valmo.in/static-assets/valmo-web/valmo-logo-white.svg" 
+            alt="Valmo" 
+            className="h-5 opacity-50 grayscale"
+          />
         </div>
       </div>
     </aside>
